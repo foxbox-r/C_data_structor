@@ -36,14 +36,7 @@ void ListInit(List * plist){
 	plist->numOfData = 0;
 }
 
-void SInsert(List * plist,LData data){
-	
-};
 
-void LInsert(List * plist,LData data){
-	if(plist->comp == NULL) FInsert(plist,data);
-	else SInsert(plist,data);
-} 
 
 
 int LFirst(List * plist,LData * pdata){
@@ -76,16 +69,44 @@ LData LRemove(List * plist){
 	return rdata;
 }
 
+void setSortRule(List * plist,int (*comp)(LData d1,LData d2)){
+	plist->comp = comp;
+}
+
+void SInsert(List * plist,LData data){
+	Node * newNode = (Node*)malloc(sizeof(Node));
+	Node * pred = plist->head;
+	
+	newNode->data = data;
+	while(pred->next != NULL && plist->comp(data,pred->next->data) != 0){
+		pred = pred->next;
+	}
+	
+	newNode->next = pred->next;
+	pred->next = newNode;
+}
+
+void LInsert(List * plist,LData data){
+	if(plist->comp == NULL) FInsert(plist,data);
+	else SInsert(plist,data);
+} 
+
+int getBigger(int d1,int d2){
+	return d1>d2?1:0;
+}
+
 int main(void){
 	puts("start");
 	List list;
 	int data;
 	ListInit(&list);
 	
+	setSortRule(&list,getBigger);
+	
 	LInsert(&list,1);
-	LInsert(&list,2);
+	LInsert(&list,15);
 	LInsert(&list,3);
-	LInsert(&list,4);
+	LInsert(&list,9);
 	
 	if(LFirst(&list,&data)){
 		printf("%d ",data);
@@ -100,7 +121,6 @@ int main(void){
 			printf("remove %d \n",LRemove(&list));
 	}
 	puts("");
-	
 		if(LFirst(&list,&data)){
 		printf("%d ",data);
 		while(LNext(&list,&data))
